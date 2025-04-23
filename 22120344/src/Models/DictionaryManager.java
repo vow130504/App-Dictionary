@@ -5,14 +5,16 @@ import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
+import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.*;
 import java.util.*;
 
 public class DictionaryManager {
-    private static final String ANH_VIET_XML = "Data/Anh_Viet.xml";
-    private static final String VIET_ANH_XML = "Data/Viet_Anh.xml";
+    private static final String DATA_DIR = "Data/";
+    private static final String ANH_VIET_XML = DATA_DIR + "Anh_Viet.xml";
+    private static final String VIET_ANH_XML = DATA_DIR + "Viet_Anh.xml";
     private static final String SEARCH_LOG_FILE = "SearchLog.txt";
 
     private Document anhVietDocument;
@@ -21,16 +23,57 @@ public class DictionaryManager {
 
     public DictionaryManager() {
         try {
+            // Create Data directory if it doesn't exist
+            new File(DATA_DIR).mkdirs();
+
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            anhVietDocument = builder.parse(new File(ANH_VIET_XML));
-            vietAnhDocument = builder.parse(new File(VIET_ANH_XML));
+
+            // Load or create XML files
+            anhVietDocument = loadOrCreateXML(ANH_VIET_XML);
+            vietAnhDocument = loadOrCreateXML(VIET_ANH_XML);
+
             anhVietDocument.getDocumentElement().normalize();
             vietAnhDocument.getDocumentElement().normalize();
             isEnglishToVietnamese = true;
         } catch (Exception e) {
-            e.printStackTrace();
+            showErrorDialog("Error initializing dictionary", e);
         }
+    }
+
+    private Document loadOrCreateXML(String filePath) throws Exception {
+        File xmlFile = new File(filePath);
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+
+        if (!xmlFile.exists()) {
+            // Create new XML file with basic structure if it doesn't exist
+            Document doc = builder.newDocument();
+            Element root = doc.createElement("dictionary");
+            doc.appendChild(root);
+            saveXMLFile(doc, filePath);
+            return doc;
+        }
+
+        return builder.parse(xmlFile);
+    }
+
+    private void saveXMLFile(Document document, String filePath) throws Exception {
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource source = new DOMSource(document);
+
+        // Ensure parent directories exist
+        new File(filePath).getParentFile().mkdirs();
+
+        StreamResult result = new StreamResult(new File(filePath));
+        transformer.transform(source, result);
+    }
+
+    private void showErrorDialog(String title, Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null,
+                title + ": " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public String searchWord(String searchTerm) {
@@ -74,7 +117,7 @@ public class DictionaryManager {
 
             saveDictionaryToXML(document, isEnglishToVietnamese);
         } catch (Exception e) {
-            e.printStackTrace();
+            showErrorDialog("Error adding word", e);
         }
     }
 
@@ -97,20 +140,16 @@ public class DictionaryManager {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            showErrorDialog("Error deleting word", e);
         }
     }
 
     private void saveDictionaryToXML(Document document, boolean isEnglishToVietnamese) {
         try {
             String filename = isEnglishToVietnamese ? ANH_VIET_XML : VIET_ANH_XML;
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(document);
-            StreamResult result = new StreamResult(new File(filename));
-            transformer.transform(source, result);
+            saveXMLFile(document, filename);
         } catch (Exception e) {
-            e.printStackTrace();
+            showErrorDialog("Error saving dictionary", e);
         }
     }
 
@@ -141,7 +180,7 @@ public class DictionaryManager {
             String logEntry = dateFormat.format(new Date()) + " " + searchTerm + "\n";
             bw.write(logEntry);
         } catch (IOException e) {
-            e.printStackTrace();
+            showErrorDialog("Error logging search", e);
         }
     }
 
@@ -160,7 +199,7 @@ public class DictionaryManager {
                 }
             }
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            showErrorDialog("Error getting word frequency", e);
         }
         return wordFrequency;
     }
