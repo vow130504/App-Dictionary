@@ -14,19 +14,21 @@ import java.util.List;
 import Support.RoundedButton;
 import Support.RoundedTextField;
 import Support.RoundedPanel;
+import Support.RoundedBorder;
 
 public class DictionaryView {
+
     private JFrame mainFrame;
-    private JTextField searchField;
+    private RoundedTextField searchField;
     private JTextArea resultArea;
-    private JButton searchButton;
-    private JButton favoriteButton;
-    private JButton englishToVietnameseButton;
-    private JButton vietnameseToEnglishButton;
-    private JButton addButton;
-    private JButton deleteButton;
-    private JButton showFavoritesButton;
-    private JButton showStatisticsButton;
+    private RoundedButton searchButton;
+    private RoundedButton favoriteButton;
+    private RoundedButton englishToVietnameseButton;
+    private RoundedButton vietnameseToEnglishButton;
+    private RoundedButton addButton;
+    private RoundedButton deleteButton;
+    private RoundedButton showFavoritesButton;
+    private RoundedButton showStatisticsButton;
 
     private DictionaryController controller;
 
@@ -38,9 +40,10 @@ public class DictionaryView {
     private static final Font TITLE_FONT = new Font("Arial", Font.BOLD, 22);
     private static final Font DEFAULT_FONT = new Font("Arial", Font.PLAIN, 14);
     private static final Color BACKGROUND_COLOR = new Color(200, 255, 200); // Xanh nhạt
-    private static final Color BUTTON_COLOR = new Color(220, 220, 220);
+    private static final Color BUTTON_COLOR = new Color(0, 100, 0); // Xanh đậm
     private static final int BUTTON_WIDTH = 200;
     private static final int BUTTON_HEIGHT = 40;
+    private static final int CORNER_RADIUS = 15;
 
     public DictionaryView(DictionaryController controller) {
         this.controller = controller;
@@ -52,13 +55,15 @@ public class DictionaryView {
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Mở toàn màn hình
 
-
         // Main panel with BorderLayout
-        JPanel mainPanel = new JPanel(new BorderLayout());
+        RoundedPanel mainPanel = new RoundedPanel(CORNER_RADIUS);
+        mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Title panel
-        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        RoundedPanel titlePanel = new RoundedPanel(CORNER_RADIUS);
+        titlePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         titlePanel.setBackground(BACKGROUND_COLOR);
         JLabel titleLabel = new JLabel("Ứng dụng Từ điển Anh - Việt");
         titleLabel.setFont(TITLE_FONT);
@@ -68,23 +73,25 @@ public class DictionaryView {
         titleLabel.setForeground(new Color(0, 128, 0));
 
         // Content panel (center) with button panel on left and content on right
-        JPanel contentPanel = new JPanel(new BorderLayout());
+        RoundedPanel contentPanel = new RoundedPanel(CORNER_RADIUS);
+        contentPanel.setLayout(new BorderLayout());
         contentPanel.setBackground(BACKGROUND_COLOR);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Button panel (vertical, on the left)
-        JPanel buttonPanel = new JPanel();
+        RoundedPanel buttonPanel = new RoundedPanel(CORNER_RADIUS);
         buttonPanel.setBackground(BACKGROUND_COLOR);
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Create and configure buttons
-        englishToVietnameseButton = createStyledButton("English to Vietnamese");
-        vietnameseToEnglishButton = createStyledButton("Vietnamese to English");
-        addButton = createStyledButton("Add Word");
-        deleteButton = createStyledButton("Delete Word");
-        showFavoritesButton = createStyledButton("Show Favorites");
-        showStatisticsButton = createStyledButton("Show Statistics");
-        favoriteButton = createStyledButton("Favorite");
+        englishToVietnameseButton = createStyledButton("Anh - Việt");
+        vietnameseToEnglishButton = createStyledButton("Việt - Anh");
+        addButton = createStyledButton("Thêm từ");
+        deleteButton = createStyledButton("Xóa từ");
+        showFavoritesButton = createStyledButton("Danh sách thích");
+        showStatisticsButton = createStyledButton("Thống kê");
+        favoriteButton = createStyledButton("Từ yêu thích");
 
         // Add buttons to panel with spacing
         addButtonWithSpacing(buttonPanel, englishToVietnameseButton);
@@ -98,19 +105,23 @@ public class DictionaryView {
         contentPanel.add(buttonPanel, BorderLayout.WEST);
 
         // Right panel for search and results
-        JPanel rightPanel = new JPanel(new BorderLayout());
+        RoundedPanel rightPanel = new RoundedPanel(CORNER_RADIUS);
+        rightPanel.setLayout(new BorderLayout());
         rightPanel.setBackground(BACKGROUND_COLOR);
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Search panel
-        JPanel searchPanel = new JPanel(new BorderLayout());
+        RoundedPanel searchPanel = new RoundedPanel(CORNER_RADIUS);
+        searchPanel.setLayout(new BorderLayout());
         searchPanel.setBackground(BACKGROUND_COLOR);
         searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
-        searchField = new JTextField();
+        searchField = new RoundedTextField(CORNER_RADIUS);
         searchField.setFont(DEFAULT_FONT);
-        searchButton = new JButton("Search");
-        searchButton.setFont(DEFAULT_FONT);
+        searchField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+        searchButton = createStyledButton("Search");
+        searchButton.setPreferredSize(new Dimension(100, 30));
 
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(searchButton, BorderLayout.EAST);
@@ -125,6 +136,7 @@ public class DictionaryView {
         resultArea.setLineWrap(true);
         resultArea.setWrapStyleWord(true);
         JScrollPane scrollPane = new JScrollPane(resultArea);
+        scrollPane.setBorder(new RoundedBorder(CORNER_RADIUS, Color.GRAY));
         rightPanel.add(scrollPane, BorderLayout.CENTER);
 
         contentPanel.add(rightPanel, BorderLayout.CENTER);
@@ -138,11 +150,11 @@ public class DictionaryView {
         mainFrame.setVisible(true);
     }
 
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
+    private RoundedButton createStyledButton(String text) {
+        RoundedButton button = new RoundedButton(text, CORNER_RADIUS);
         button.setFont(DEFAULT_FONT);
-        button.setBackground(new Color(0, 100, 0)); // Xanh đậm
-        button.setForeground(Color.WHITE);          // Chữ trắng
+        button.setBackground(BUTTON_COLOR);
+        button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
         button.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         button.setMaximumSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -150,12 +162,12 @@ public class DictionaryView {
         return button;
     }
 
-
     private void addButtonWithSpacing(JPanel panel, JButton button) {
         panel.add(button);
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
     }
-
+    ///
+    ///
     private void setupEventListeners() {
         searchButton.addActionListener(e -> searchWord());
 
