@@ -91,7 +91,7 @@ public class DictionaryView {
         deleteButton = createStyledButton("Xóa từ");
         showFavoritesButton = createStyledButton("Danh sách thích");
         showStatisticsButton = createStyledButton("Thống kê");
-        favoriteButton = createStyledButton("Từ yêu thích");
+        favoriteButton = createStyledButton("Yêu thích");
 
         // Add buttons to panel with spacing
         addButtonWithSpacing(buttonPanel, englishToVietnameseButton);
@@ -184,12 +184,12 @@ public class DictionaryView {
 
         englishToVietnameseButton.addActionListener(e -> {
             controller.switchToEnglishToVietnamese();
-            JOptionPane.showMessageDialog(mainFrame, "Language switched to English to Vietnamese.");
+            JOptionPane.showMessageDialog(mainFrame, "Ngôn ngữ chuyển từ tiếng Anh sang tiếng Việt.");
         });
 
         vietnameseToEnglishButton.addActionListener(e -> {
             controller.switchToVietnameseToEnglish();
-            JOptionPane.showMessageDialog(mainFrame, "Language switched to Vietnamese to English.");
+            JOptionPane.showMessageDialog(mainFrame, "Ngôn ngữ chuyển từ tiếng Việt sang tiếng Anh.");
         });
 
         addButton.addActionListener(e -> showAddWordDialog());
@@ -204,10 +204,10 @@ public class DictionaryView {
             String meaning = controller.searchWord(searchTerm);
             if (meaning != null) {
                 boolean isFavorite = controller.isFavorite(searchTerm);
-                favoriteButton.setText(isFavorite ? "Unfavorite" : "Favorite");
+                favoriteButton.setText(isFavorite ? "Bỏ yêu thích" : "Yêu thích");
                 resultArea.setText("Word: " + searchTerm + "\nMeaning: " + meaning + "\n");
             } else {
-                resultArea.setText("Word not found.");
+                resultArea.setText("Không tìm thấy từ vựng.");
             }
         }
     }
@@ -216,54 +216,54 @@ public class DictionaryView {
         String searchTerm = searchField.getText().trim().toLowerCase();
         if (!searchTerm.isEmpty()) {
             boolean isNowFavorite = controller.toggleFavorite(searchTerm);
-            favoriteButton.setText(isNowFavorite ? "Unfavorite" : "Favorite");
+            favoriteButton.setText(isNowFavorite ? "Bỏ yêu thích" : "Yêu thích");
             JOptionPane.showMessageDialog(mainFrame,
-                    isNowFavorite ? "Word added to Favorites." : "Word removed from Favorites.");
+                    isNowFavorite ? "Đã thêm từ vào mục Yêu thích." : "Đã xóa từ khỏi mục Yêu thích.");
         }
     }
 
     private void showAddWordDialog() {
-        String word = JOptionPane.showInputDialog(mainFrame, "Enter word:");
+        String word = JOptionPane.showInputDialog(mainFrame, "Nhập từ:");
         if (word != null && !word.trim().isEmpty()) {
             word = word.trim().toLowerCase();
 
-            String[] options = {"English to Vietnamese", "Vietnamese to English"};
+            String[] options = {"Tiếng Anh sang tiếng Việt", "Tiếng Việt sang tiếng Anh"};
             int choice = JOptionPane.showOptionDialog(mainFrame,
-                    "Select language direction:", "Add Word",
+                    "Chọn hướng ngôn ngữ:", "Thêm từ",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
                     null, options, options[0]);
 
             boolean isEnglishToVietnamese = (choice == 0);
 
             if (controller.wordExists(word)) {
-                JOptionPane.showMessageDialog(mainFrame, "Word already exists in the dictionary.");
+                JOptionPane.showMessageDialog(mainFrame, "Từ này đã tồn tại trong từ điển.");
                 return;
             }
 
-            String meaning = JOptionPane.showInputDialog(mainFrame, "Enter meaning:");
+            String meaning = JOptionPane.showInputDialog(mainFrame, "Nhập ý nghĩa:");
             if (meaning != null && !meaning.trim().isEmpty()) {
                 boolean success = controller.addWord(word, meaning, isEnglishToVietnamese);
                 if (success) {
-                    JOptionPane.showMessageDialog(mainFrame, "Word added successfully.");
+                    JOptionPane.showMessageDialog(mainFrame, "Đã thêm từ thành công.");
                 }
             }
         }
     }
 
     private void showDeleteWordDialog() {
-        String wordToDelete = JOptionPane.showInputDialog(mainFrame, "Enter word to delete:");
+        String wordToDelete = JOptionPane.showInputDialog(mainFrame, "Nhập từ cần xóa:");
         if (wordToDelete != null && !wordToDelete.trim().isEmpty()) {
             wordToDelete = wordToDelete.trim().toLowerCase();
 
             int confirmation = JOptionPane.showConfirmDialog(mainFrame,
-                    "Are you sure you want to delete the word: " + wordToDelete + "?",
-                    "Confirmation", JOptionPane.YES_NO_OPTION);
+                    "Bạn có chắc chắn muốn xóa từ: " + wordToDelete + " không ?",
+                    "Xác nhận", JOptionPane.YES_NO_OPTION);
 
             if (confirmation == JOptionPane.YES_OPTION) {
-                String[] options = {"English to Vietnamese", "Vietnamese to English"};
+                String[] options = {"Tiếng Anh sang tiếng Việt", "Tiếng Việt sang tiếng Anh"};
                 int choice = JOptionPane.showOptionDialog(mainFrame,
-                        "Select language direction for the word: " + wordToDelete,
-                        "Delete Word", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+                        "Chọn hướng ngôn ngữ cho từ: " + wordToDelete,
+                        "Xóa từ", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
                         null, options, options[0]);
 
                 boolean isEnglishToVietnamese = (choice == 0);
@@ -271,8 +271,8 @@ public class DictionaryView {
 
                 if (!deleted) {
                     JOptionPane.showMessageDialog(mainFrame,
-                            "Word does not exist in the selected dictionary.",
-                            "Word Not Found", JOptionPane.ERROR_MESSAGE);
+                            "Từ không tồn tại trong từ điển đã chọn.",
+                            "Không tìm thấy từ", JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
@@ -280,7 +280,7 @@ public class DictionaryView {
 
     private void showFavoritesFrame() {
         if (!isFavoritesFrameVisible) {
-            favoritesFrame = new JFrame("Favorites");
+            favoritesFrame = new JFrame("Yêu thích");
             favoritesFrame.setSize(500, 600);
             favoritesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -294,8 +294,8 @@ public class DictionaryView {
             JScrollPane scrollPane = new JScrollPane(favoritesTable);
 
             JPanel buttonPanel = new JPanel();
-            JButton sortAZButton = new JButton("Sort A-Z");
-            JButton sortZAButton = new JButton("Sort Z-A");
+            JButton sortAZButton = new JButton("Sắp xếp A-Z");
+            JButton sortZAButton = new JButton("Sắp xếp Z-A");
 
             sortAZButton.addActionListener(e -> sortFavorites(model, true));
             sortZAButton.addActionListener(e -> sortFavorites(model, false));
@@ -373,19 +373,20 @@ public class DictionaryView {
     }
 
     private void showStatisticsFrame() {
-        JFrame statisticsFrame = new JFrame("Search Statistics");
+        JFrame statisticsFrame = new JFrame("Tìm kiếm Thống kê");
         statisticsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         statisticsFrame.setSize(500, 600);
+        statisticsFrame.setLocationRelativeTo(null); // Căn giữa khung thống kê
 
         JPanel statisticsPanel = new JPanel(new BorderLayout());
 
-        JLabel startDateLabel = new JLabel("Start Date (yyyy-MM-dd):");
-        JLabel endDateLabel = new JLabel("End Date (yyyy-MM-dd):");
+        JLabel startDateLabel = new JLabel("Ngày bắt đầu (yyyy-MM-dd):");
+        JLabel endDateLabel = new JLabel("Ngày kết thúc (yyyy-MM-dd):");
 
         JTextField startDateField = new JTextField(10);
         JTextField endDateField = new JTextField(10);
 
-        JButton generateButton = new JButton("Generate Statistics");
+        JButton generateButton = new JButton("Tạo số liệu thống kê");
         JTextArea statisticsArea = new JTextArea();
         statisticsArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(statisticsArea);
@@ -400,16 +401,44 @@ public class DictionaryView {
                 showStatistics(startDate, endDate, statisticsArea);
             } catch (ParseException ex) {
                 JOptionPane.showMessageDialog(statisticsFrame,
-                        "Invalid date format. Please use yyyy-MM-dd format.");
+                        "Định dạng ngày không hợp lệ. Vui lòng sử dụng định dạng yyyy-MM-dd.");
             }
         });
 
-        JPanel inputPanel = new JPanel(new GridLayout(3, 2));
-        inputPanel.add(startDateLabel);
-        inputPanel.add(startDateField);
-        inputPanel.add(endDateLabel);
-        inputPanel.add(endDateField);
-        inputPanel.add(generateButton);
+        // Tạo panel cho nút để căn giữa
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.add(generateButton);
+
+        // Sử dụng GridBagLayout thay vì GridLayout để căn chỉnh tốt hơn
+        JPanel inputPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5); // Khoảng cách giữa các thành phần
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Thêm startDateLabel và startDateField
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        inputPanel.add(startDateLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        inputPanel.add(startDateField, gbc);
+
+        // Thêm endDateLabel và endDateField
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        inputPanel.add(endDateLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        inputPanel.add(endDateField, gbc);
+
+        // Thêm buttonPanel (chứa nút căn giữa)
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2; // Chiếm cả 2 cột
+        gbc.fill = GridBagConstraints.NONE; // Không giãn nút
+        inputPanel.add(buttonPanel, gbc);
 
         statisticsPanel.add(inputPanel, BorderLayout.NORTH);
         statisticsPanel.add(scrollPane, BorderLayout.CENTER);
@@ -422,9 +451,9 @@ public class DictionaryView {
         Map<String, Integer> wordFrequency = controller.getWordFrequency(startDate, endDate);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Search Statistics from ").append(startDate).append(" to ").append(endDate).append("\n");
+        sb.append("Tìm kiếm Thống kê từ ").append(startDate).append(" đến ").append(endDate).append("\n");
         for (Map.Entry<String, Integer> entry : wordFrequency.entrySet()) {
-            sb.append(entry.getKey()).append(": ").append(entry.getValue()).append(" times\n");
+            sb.append(entry.getKey()).append(": ").append(entry.getValue()).append(" lần\n");
         }
 
         statisticsArea.setText(sb.toString());
