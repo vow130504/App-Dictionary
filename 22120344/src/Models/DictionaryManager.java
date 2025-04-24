@@ -16,44 +16,9 @@ public class DictionaryManager {
     private static final String VIET_ANH_XML = "./22120344/Data/Viet_Anh.xml";
     private static final String SEARCH_LOG_FILE = "./22120344/Data/SearchLog.txt";
 
-
     private Document anhVietDocument;
     private Document vietAnhDocument;
     private boolean isEnglishToVietnamese;
-    public void deleteWord(String word, boolean isEnglishToVietnamese) {
-        try {
-            Document document = isEnglishToVietnamese ? anhVietDocument : vietAnhDocument;
-            NodeList recordList = document.getElementsByTagName("record");
-            boolean wordFound = false;
-            for (int i = 0; i < recordList.getLength(); i++) {
-                Node recordNode = recordList.item(i);
-                if (recordNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element recordElement = (Element) recordNode;
-                    String wordInRecord = recordElement.getElementsByTagName("word").item(0).getTextContent().trim().toLowerCase();
-                    if (wordInRecord.equals(word)) {
-                        recordNode.getParentNode().removeChild(recordNode);
-                        saveDictionaryToXML(document, isEnglishToVietnamese);
-                        wordFound = true;
-                        break;
-                    }
-                }
-            }
-            if (!wordFound) {
-                if (isEnglishToVietnamese) {
-                    JOptionPane.showMessageDialog(null, "Word '" + word + "' does not exist in the English to Vietnamese dictionary.", "Word Not Found", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Word '" + word + "' does not exist in the Vietnamese to English dictionary.", "Word Not Found", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-
 
     public DictionaryManager() {
         try {
@@ -61,7 +26,7 @@ public class DictionaryManager {
             vietAnhDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(VIET_ANH_XML));
             anhVietDocument.getDocumentElement().normalize();
             vietAnhDocument.getDocumentElement().normalize();
-            isEnglishToVietnamese = true; // Mặc định hiển thị English to Vietnamese
+            isEnglishToVietnamese = true; // Default to English to Vietnamese
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -98,6 +63,10 @@ public class DictionaryManager {
         isEnglishToVietnamese = false;
     }
 
+    public boolean isEnglishToVietnamese() {
+        return isEnglishToVietnamese;
+    }
+
     public void addWord(String word, String meaning, boolean isEnglishToVietnamese) {
         try {
             Document document = isEnglishToVietnamese ? anhVietDocument : vietAnhDocument;
@@ -122,6 +91,34 @@ public class DictionaryManager {
         }
     }
 
+    public void deleteWord(String word, boolean isEnglishToVietnamese) {
+        try {
+            Document document = isEnglishToVietnamese ? anhVietDocument : vietAnhDocument;
+            NodeList recordList = document.getElementsByTagName("record");
+            boolean wordFound = false;
+            for (int i = 0; i < recordList.getLength(); i++) {
+                Node recordNode = recordList.item(i);
+                if (recordNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element recordElement = (Element) recordNode;
+                    String wordInRecord = recordElement.getElementsByTagName("word").item(0).getTextContent().trim().toLowerCase();
+                    if (wordInRecord.equals(word)) {
+                        recordNode.getParentNode().removeChild(recordNode);
+                        saveDictionaryToXML(document, isEnglishToVietnamese);
+                        wordFound = true;
+                        break;
+                    }
+                }
+            }
+            if (!wordFound) {
+                String dictType = isEnglishToVietnamese ? "English to Vietnamese" : "Vietnamese to English";
+                JOptionPane.showMessageDialog(null, "Word '" + word + "' does not exist in the " + dictType + " dictionary.",
+                        "Word Not Found", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void saveDictionaryToXML(Document document, boolean isEnglishToVietnamese) {
         try {
             String filename = isEnglishToVietnamese ? ANH_VIET_XML : VIET_ANH_XML;
@@ -141,6 +138,11 @@ public class DictionaryManager {
         } else {
             return wordExistsInDocument(vietAnhDocument, word);
         }
+    }
+
+    public boolean wordExistsInSpecificDictionary(String word, boolean isEnglishToVietnamese) {
+        Document document = isEnglishToVietnamese ? anhVietDocument : vietAnhDocument;
+        return wordExistsInDocument(document, word);
     }
 
     private boolean wordExistsInDocument(Document document, String word) {
@@ -169,7 +171,6 @@ public class DictionaryManager {
         }
     }
 
-
     public Map<String, Integer> getWordFrequency(Date startDate, Date endDate) {
         Map<String, Integer> wordFrequency = new HashMap<>();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -177,18 +178,21 @@ public class DictionaryManager {
             String logEntry;
             while ((logEntry = br.readLine()) != null) {
                 String[] parts = logEntry.split(" ", 3);
-                Date logDate = dateFormat.parse(parts[0] + " " + parts[1]);
-                if (!logDate.before(startDate) && !logDate.after(endDate)) {
-                    String word = parts[2].trim();
-                    wordFrequency.put(word, wordFrequency.getOrDefault(word, 0) + 1);
+                if (parts.length >= 3) {
+                    try {
+                        Date logDate = dateFormat.parse(parts[0] + " " + parts[1]);
+                        if (!logDate.before(startDate) && !logDate.after(endDate)) {
+                            String word = parts[2].trim();
+                            wordFrequency.put(word, wordFrequency.getOrDefault(word, 0) + 1);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-        } catch (IOException | ParseException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return wordFrequency;
     }
-
-
 }
-
